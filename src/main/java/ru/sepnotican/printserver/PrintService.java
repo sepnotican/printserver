@@ -1,14 +1,11 @@
 package ru.sepnotican.printserver;
 
-import org.springframework.stereotype.Service;
 import ru.sepnotican.printserver.controller.restreflect.PrintRequest;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-@Service
 public class PrintService {
 
 
