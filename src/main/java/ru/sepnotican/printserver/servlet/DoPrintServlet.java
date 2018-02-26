@@ -26,13 +26,14 @@ public class DoPrintServlet extends HttpServlet {
             try {
                 new PrintService().print(printRequest); //todo inject
             } catch (WrongAddressFormatException e) {
-                e.printStackTrace(); //todo logging
+                //todo logging
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 resp.getWriter().print(new ResponseMessage(resp.getStatus(), true
-                        , "Wrong address format. "));
+                        , "Wrong address format. ").toJson());
             } catch (Exception e) {
+                //todo logging
                 resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                resp.getWriter().print(new ResponseMessage(resp.getStatus(), true, e.getMessage()));
+                resp.getWriter().print(new ResponseMessage(resp.getStatus(), true, e.getMessage()).toJson());
             }
         }
 

@@ -9,13 +9,13 @@ import java.net.Socket;
 public class PrintService {
 
 
-    public void print(PrintRequest printRequest) throws WrongAddressFormatException {
+    public void print(PrintRequest printRequest) throws WrongAddressFormatException, IOException {
 
         printBySocket(printRequest);
 
     }
 
-    private void printBySocket(PrintRequest printRequest) throws WrongAddressFormatException {
+    private void printBySocket(PrintRequest printRequest) throws WrongAddressFormatException, IOException {
 
         String[] addressSplitted = printRequest.getPrinter().getAddress().split(":");
         if (addressSplitted.length != 2)
@@ -28,8 +28,6 @@ public class PrintService {
                 pw.print(aByte);
             }
             pw.flush();
-        } catch (IOException e) {
-            e.printStackTrace(); //todo logging
         }
 
     }
