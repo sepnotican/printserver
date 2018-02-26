@@ -1,6 +1,6 @@
 package ru.sepnotican.printserver;
 
-import ru.sepnotican.printserver.controller.restreflect.PrintRequest;
+import ru.sepnotican.printserver.entity.PrintRequest;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -9,27 +9,27 @@ import java.net.Socket;
 public class PrintService {
 
 
-    public void print(PrintRequest printRequest) {
+    public void print(PrintRequest printRequest) throws WrongAddressFormatException {
 
-        if (printRequest.getPrinter().getUNCName() == null)
-            printBySocket(printRequest);
+        printBySocket(printRequest);
 
     }
 
-    private void printBySocket(PrintRequest printRequest) {
+    private void printBySocket(PrintRequest printRequest) throws WrongAddressFormatException {
 
-        try (
-            Socket socket = new Socket(printRequest.getPrinter().getAddress(), printRequest.getPrinter().getPort());
-            PrintWriter pw = new PrintWriter(socket.getOutputStream());
-        ){
+        String[] addressSplitted = printRequest.getPrinter().getAddress().split(":");
+        if (addressSplitted.length != 2)
+            throw new WrongAddressFormatException("Wrong address format!");
+
+        try (Socket socket = new Socket(addressSplitted[0], Integer.parseInt(addressSplitted[1]));
+             PrintWriter pw = new PrintWriter(socket.getOutputStream())) {
             byte[] bytes = printRequest.getDataZPL().getBytes();
-
-            for (int i = 0; i < bytes.length; i++) {
-                pw.print(bytes[i]);
+            for (byte aByte : bytes) {
+                pw.print(aByte);
             }
             pw.flush();
         } catch (IOException e) {
-            e.printStackTrace();
+            e.printStackTrace(); //todo logging
         }
 
     }

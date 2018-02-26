@@ -1,4 +1,4 @@
-package ru.sepnotican.printserver.controller.restreflect;
+package ru.sepnotican.printserver.entity;
 
 public class PrintRequest {
 
@@ -6,6 +6,11 @@ public class PrintRequest {
     private String dataZPL;
 
     public PrintRequest() {
+    }
+
+    public PrintRequest(Printer printer, String dataZPL) {
+        this.printer = printer;
+        this.dataZPL = dataZPL;
     }
 
     public Printer getPrinter() {
@@ -22,5 +27,13 @@ public class PrintRequest {
 
     public void setDataZPL(String dataZPL) {
         this.dataZPL = dataZPL;
+    }
+
+    @Override
+    public String toString() {
+        return "PrintRequest{" +
+                "printer=" + printer +
+                ", dataZPL='" + dataZPL + '\'' +
+                '}';
     }
 }
