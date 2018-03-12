@@ -3,28 +3,50 @@ package ru.sepnotican.printserver.servlet;
 import com.google.gson.Gson;
 import ru.sepnotican.printserver.PrintService;
 import ru.sepnotican.printserver.WrongAddressFormatException;
-import ru.sepnotican.printserver.entity.PrintRequest;
+import ru.sepnotican.printserver.entity.PrintMode;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.Reader;
 
 public class DoPrintServlet extends HttpServlet {
 
+    PrintService printService;
+
+    public DoPrintServlet() {
+        this.printService = new PrintService(); //todo inject
+    }
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        Reader reader = req.getReader();
-        StringBuilder stringBuilder = new StringBuilder(req.getContentLength());
-        while (reader.ready())
-            stringBuilder.append((char) reader.read());
-        Gson gson = new Gson();
-        PrintRequest printRequest = gson.fromJson(stringBuilder.toString(), PrintRequest.class);
 
-        if (printRequest != null) {
+        String printType = req.getHeader("printType");
+        String printerName = req.getHeader("printerAddress");
+
+        Reader reader = req.getReader();
+
+
+        DataInputStream printDataInputStream = new DataInputStream(req.getInputStream());
+
+        byte[] printData = new byte[req.getContentLength()];
+        printDataInputStream.readFully(printData);
+
+
+        if (printData.length > 0) {
             try {
-                new PrintService().print(printRequest); //todo inject
+                if (printType.equalsIgnoreCase(String.valueOf(PrintMode.ZPLSOCKET))) {
+                    printService.printZPL(printerName, printData);
+                } else if (printType.equalsIgnoreCase(String.valueOf(PrintMode.PDFLOCAL))) {
+                    printService.printPDF(printerName, printData);
+                } else {
+                    resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    resp.getWriter().print(new ResponseMessage(resp.getStatus(), true
+                            , "Wrong print type. ").toJson());
+                }
+
             } catch (WrongAddressFormatException e) {
                 //todo logging
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);

@@ -17,7 +17,7 @@ public class PrintserverApplication {
 
 		handler.addServletWithMapping(MyServletRoot.class, "/*");
 		handler.addServletWithMapping(MyServletHey.class, "/hey/*");
-		handler.addServletWithMapping(DoPrintServlet.class, "/print");
+        handler.addServletWithMapping(DoPrintServlet.class, "/printZPL");
 
 		server.start();
 		server.join();
