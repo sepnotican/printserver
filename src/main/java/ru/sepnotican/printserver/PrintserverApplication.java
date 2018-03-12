@@ -2,9 +2,9 @@ package ru.sepnotican.printserver;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletHandler;
-import ru.sepnotican.printserver.servlet.DoPrintServlet;
 import ru.sepnotican.printserver.servlet.MyServletHey;
 import ru.sepnotican.printserver.servlet.MyServletRoot;
+import ru.sepnotican.printserver.servlet.PrintServlet;
 
 public class PrintserverApplication {
 
@@ -17,7 +17,7 @@ public class PrintserverApplication {
 
 		handler.addServletWithMapping(MyServletRoot.class, "/*");
 		handler.addServletWithMapping(MyServletHey.class, "/hey/*");
-        handler.addServletWithMapping(DoPrintServlet.class, "/printZPL");
+		handler.addServletWithMapping(PrintServlet.class, "/print");
 
 		server.start();
 		server.join();

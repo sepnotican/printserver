@@ -5,19 +5,25 @@ import ru.sepnotican.printserver.PrintingHandler;
 import ru.sepnotican.printserver.WrongAddressFormatException;
 import ru.sepnotican.printserver.entity.PrintMode;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.Reader;
 
-public class DoPrintServlet extends HttpServlet {
+public class PrintServlet extends HttpServlet {
 
     PrintingHandler printingHandler;
 
-    public DoPrintServlet() {
+    public PrintServlet() {
         this.printingHandler = PrintingHandler.getInstance(); //todo inject
+    }
+
+    @Override
+    protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        resp.getWriter().print(PrintingHandler.getInstance().getPrinterListInJson());
+        resp.setStatus(HttpServletResponse.SC_OK);
     }
 
     @Override
@@ -25,9 +31,6 @@ public class DoPrintServlet extends HttpServlet {
 
         String printType = req.getHeader("printType");
         String printerName = req.getHeader("printerAddress");
-
-        Reader reader = req.getReader();
-
 
         DataInputStream printDataInputStream = new DataInputStream(req.getInputStream());
 

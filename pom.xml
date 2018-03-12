@@ -39,12 +39,6 @@
 			<version>${jetty-webapp.version}</version>
 		</dependency>
 
-		<dependency>
-			<groupId>com.kenai.nbpwr</groupId>
-			<artifactId>com-sun-pdfview</artifactId>
-			<version>1.0.5-201003191900</version>
-		</dependency>
-
 		<!-- https://mvnrepository.com/artifact/org.apache.pdfbox/pdfbox -->
 		<dependency>
 			<groupId>org.apache.pdfbox</groupId>

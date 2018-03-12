@@ -88,7 +88,7 @@ public class PrintingHandler {
 
         public static String toJson() {
             Gson gson = new Gson();
-            return gson.toJson(PrinterList.class);
+            return gson.toJson(printersNamesSet);
         }
     }
 
