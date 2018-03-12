@@ -1,7 +1,7 @@
 package ru.sepnotican.printserver.servlet;
 
 import com.google.gson.Gson;
-import ru.sepnotican.printserver.PrintService;
+import ru.sepnotican.printserver.PrintingHandler;
 import ru.sepnotican.printserver.WrongAddressFormatException;
 import ru.sepnotican.printserver.entity.PrintMode;
 
@@ -14,10 +14,10 @@ import java.io.Reader;
 
 public class DoPrintServlet extends HttpServlet {
 
-    PrintService printService;
+    PrintingHandler printingHandler;
 
     public DoPrintServlet() {
-        this.printService = new PrintService(); //todo inject
+        this.printingHandler = PrintingHandler.getInstance(); //todo inject
     }
 
     @Override
@@ -38,9 +38,9 @@ public class DoPrintServlet extends HttpServlet {
         if (printData.length > 0) {
             try {
                 if (printType.equalsIgnoreCase(String.valueOf(PrintMode.ZPLSOCKET))) {
-                    printService.printZPL(printerName, printData);
+                    printingHandler.printZPL(printerName, printData);
                 } else if (printType.equalsIgnoreCase(String.valueOf(PrintMode.PDFLOCAL))) {
-                    printService.printPDF(printerName, printData);
+                    printingHandler.printPDF(printerName, printData);
                 } else {
                     resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                     resp.getWriter().print(new ResponseMessage(resp.getStatus(), true
