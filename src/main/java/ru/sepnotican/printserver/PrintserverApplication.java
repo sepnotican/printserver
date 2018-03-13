@@ -21,7 +21,7 @@ public class PrintserverApplication {
 		handler.addServletWithMapping(PrintServlet.class, "/print");
 
 		server.start();
-		logger.info("Server stareted.");
+        logger.info("Server started.");
 		server.join();
 
 	}
