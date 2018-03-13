@@ -1,0 +1,26 @@
+<!DOCTYPE HTML>
+<HTML>
+<BODY>
+
+<p>
+<h1>Usage of printserver:</h1>
+</p>
+<p>
+<h2>method: POST /print</h2>
+<br/><i> description: prints a binary data from octet stream to printer pointed in <b>printerAddress</b> header</i>
+<br/><br/>headers:
+<br/><b>printType</b> : ZPLSOCKET, PDFLOCAL.
+<br/><b>printerAddress</b> : A printer name in server system (can be got from <b>OPTIONS /print</b> call) for <b>PDFLOCAL</b>
+printer mode
+<br/>OR IP:PORT address for <b>ZPLSOCKET</b> mode (ex. "192.168.1.1:9100")
+<br/><br/>body: octet-stream with data to print
+</p>
+<br/>
+<p>
+<h2>method OPTIONS /print</h2>
+<br/> returns a list of printers names int the server system
+</p>
+
+</BODY>
+
+</HTML>

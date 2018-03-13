@@ -1,6 +1,7 @@
 package ru.sepnotican.printserver.servlet;
 
 import com.google.gson.Gson;
+import org.apache.log4j.Logger;
 import ru.sepnotican.printserver.PrintingHandler;
 import ru.sepnotican.printserver.WrongAddressFormatException;
 import ru.sepnotican.printserver.entity.PrintMode;
@@ -15,6 +16,7 @@ import java.io.IOException;
 public class PrintServlet extends HttpServlet {
 
     PrintingHandler printingHandler;
+    private static final Logger logger = Logger.getLogger(PrintServlet.class);
 
     public PrintServlet() {
         this.printingHandler = PrintingHandler.getInstance(); //todo inject
@@ -22,13 +24,13 @@ public class PrintServlet extends HttpServlet {
 
     @Override
     protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        logger.info("OPTIONS /print call from IP: " + req.getRemoteAddr());
         resp.getWriter().print(PrintingHandler.getInstance().getPrinterListInJson());
         resp.setStatus(HttpServletResponse.SC_OK);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-
         String printType = req.getHeader("printType");
         String printerName = req.getHeader("printerAddress");
 
@@ -37,6 +39,13 @@ public class PrintServlet extends HttpServlet {
         byte[] printData = new byte[req.getContentLength()];
         printDataInputStream.readFully(printData);
 
+        logger.info("POST /print call from IP: " + req.getRemoteAddr() +
+                "\n header printType = " + printType +
+                "\n header printerAddress = " + printerName +
+                "\n content length:\n" + printData.length +
+                //add zpl data for zpl printmode
+                (printType.equalsIgnoreCase(String.valueOf(PrintMode.ZPLSOCKET))
+                        ? "ZPLDATA = " + new String(printData) : ""));
 
         if (printData.length > 0) {
             try {
