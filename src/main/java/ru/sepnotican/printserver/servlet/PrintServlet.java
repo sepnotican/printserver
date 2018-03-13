@@ -54,21 +54,27 @@ public class PrintServlet extends HttpServlet {
                 } else if (printType.equalsIgnoreCase(String.valueOf(PrintMode.PDFLOCAL))) {
                     printingHandler.printPDF(printerName, printData);
                 } else {
+                    final String message = "Wrong print type header's value. Got: " + printType;
+                    logger.warn(message);
                     resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                    resp.getWriter().print(new ResponseMessage(resp.getStatus(), true
-                            , "Wrong print type. ").toJson());
+                    resp.getWriter().print(new ResponseMessage(resp.getStatus(), true, message).toJson());
                 }
 
             } catch (WrongAddressFormatException e) {
-                logger.error("Wrong address format. Address = " + printerName);
+                final String message = "Wrong address format. Address = " + printerName;
+                logger.error(message);
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                resp.getWriter().print(new ResponseMessage(resp.getStatus(), true
-                        , "Wrong address format. ").toJson());
+                resp.getWriter().print(new ResponseMessage(resp.getStatus(), true, message).toJson());
             } catch (Exception e) {
                 logger.error("Internal error. Message = " + e.getMessage());
                 resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 resp.getWriter().print(new ResponseMessage(resp.getStatus(), true, e.getMessage()).toJson());
             }
+        } else {
+            final String message = "Request body is null length. Nothing to print.";
+            logger.warn(message);
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().print(new ResponseMessage(resp.getStatus(), true, message).toJson());
         }
 
     }
