@@ -1,4 +1,4 @@
-package ru.sepnotican.printserver.entity;
+package ru.sepnotican.printserver;
 
 public enum PrintMode {
     ZPLSOCKET, PDFLOCAL

@@ -2,9 +2,9 @@ package ru.sepnotican.printserver.servlet;
 
 import com.google.gson.Gson;
 import org.apache.log4j.Logger;
+import ru.sepnotican.printserver.PrintMode;
 import ru.sepnotican.printserver.PrintingHandler;
 import ru.sepnotican.printserver.WrongAddressFormatException;
-import ru.sepnotican.printserver.entity.PrintMode;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -60,12 +60,12 @@ public class PrintServlet extends HttpServlet {
                 }
 
             } catch (WrongAddressFormatException e) {
-                //todo logging
+                logger.error("Wrong address format. Address = " + printerName);
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 resp.getWriter().print(new ResponseMessage(resp.getStatus(), true
                         , "Wrong address format. ").toJson());
             } catch (Exception e) {
-                //todo logging
+                logger.error("Internal error. Message = " + e.getMessage());
                 resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 resp.getWriter().print(new ResponseMessage(resp.getStatus(), true, e.getMessage()).toJson());
             }
