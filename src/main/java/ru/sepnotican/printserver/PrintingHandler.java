@@ -67,7 +67,7 @@ public class PrintingHandler {
     }
 
     public String getPrinterListInJson() {
-        return new PrinterList().toJson();
+        return PrinterList.toJson();
     }
 
     private static class PrinterList {
