@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 
 public class PrintServlet extends HttpServlet {
 
@@ -33,7 +34,7 @@ public class PrintServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String printType = req.getHeader("printType");
         String printerName = req.getHeader("printerAddress");
-        System.err.println(req.getCharacterEncoding());
+        String charset = req.getCharacterEncoding();
 
         InputStream is = req.getInputStream();
         byte[] printData = new byte[req.getContentLength()];
@@ -50,7 +51,7 @@ public class PrintServlet extends HttpServlet {
         if (printData.length > 0) {
             try {
                 if (printType.equalsIgnoreCase(String.valueOf(PrintMode.ZPLSOCKET))) {
-                    printingHandler.printZPL(printerName, printData);
+                    printingHandler.printZPL(printerName, printData, charset);
                 } else if (printType.equalsIgnoreCase(String.valueOf(PrintMode.PDFLOCAL))) {
                     printingHandler.printPDF(printerName, printData);
                 } else {
@@ -60,6 +61,11 @@ public class PrintServlet extends HttpServlet {
                     resp.getWriter().print(new ResponseMessage(resp.getStatus(), true, message).toJson());
                 }
 
+            } catch (UnsupportedEncodingException e) {
+                final String message = "Wrong encoding. Got = " + charset;
+                logger.error(message);
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                resp.getWriter().print(new ResponseMessage(resp.getStatus(), true, message).toJson());
             } catch (WrongAddressFormatException e) {
                 final String message = "Wrong address format. Address = " + printerName;
                 logger.error(message);

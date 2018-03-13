@@ -13,7 +13,8 @@
 <br/><b>printerAddress</b> : A printer name in server system (can be got from <b>OPTIONS /print</b> call) for <b>PDFLOCAL</b>
 printer mode
 <br/>OR IP:PORT address for <b>ZPLSOCKET</b> mode (ex. "192.168.1.1:9100")
-<br/><br/>body: octet-stream with data to print
+<br/><br/>body: octet-stream with data to print.
+<br/><br/>charset must be set in <i>Content-Type</i> header (ex. "application/octet-stream; charset=windows-1251")
 </p>
 <br/>
 <p>
