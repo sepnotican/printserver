@@ -10,8 +10,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
 public class PrintServlet extends HttpServlet {
@@ -36,9 +36,9 @@ public class PrintServlet extends HttpServlet {
         String printerName = req.getHeader("printerAddress");
         String charset = req.getCharacterEncoding();
 
-        InputStream is = req.getInputStream();
+        BufferedInputStream bis = new BufferedInputStream(req.getInputStream());
         byte[] printData = new byte[req.getContentLength()];
-        is.read(printData);
+        bis.read(printData, 0, req.getContentLength());
 
         logger.info("POST /print call from IP: " + req.getRemoteAddr() +
                 "\nheader printType = " + printType +
@@ -72,6 +72,7 @@ public class PrintServlet extends HttpServlet {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 resp.getWriter().print(new ResponseMessage(resp.getStatus(), true, message).toJson());
             } catch (Exception e) {
+                e.printStackTrace();
                 logger.error("Internal error. Message = " + e.getMessage());
                 resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 resp.getWriter().print(new ResponseMessage(resp.getStatus(), true, e.getMessage()).toJson());

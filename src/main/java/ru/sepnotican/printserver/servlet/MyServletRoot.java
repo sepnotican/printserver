@@ -6,8 +6,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -20,18 +18,11 @@ public class MyServletRoot extends HttpServlet {
 
         logger.info("GET / call from IP: " + req.getRemoteAddr());
 
-        ClassLoader cl = MyServletRoot.class.getClassLoader();
-        URL f = cl.getResource("static/index.html");
-        if (f == null) {
-            logger.error("Unable to find resource directory");
-            throw new RuntimeException("Unable to find resource directory");
-        }
-
         String content;
         try {
-            content = new String(Files.readAllBytes(Paths.get(f.toURI())));
-        } catch (URISyntaxException e) {
-            logger.error("Unable to find load index.html");
+            content = new String(Files.readAllBytes(Paths.get("static/index.html")));
+        } catch (Exception e) {
+            logger.error("Unable to find load index.html. Error: " + e.getMessage());
             throw new RuntimeException("Unable to find load index.html");
         }
 
