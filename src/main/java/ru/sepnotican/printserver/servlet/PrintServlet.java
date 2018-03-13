@@ -10,8 +10,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class PrintServlet extends HttpServlet {
 
@@ -33,19 +33,19 @@ public class PrintServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String printType = req.getHeader("printType");
         String printerName = req.getHeader("printerAddress");
+        System.err.println(req.getCharacterEncoding());
 
-        DataInputStream printDataInputStream = new DataInputStream(req.getInputStream());
-
+        InputStream is = req.getInputStream();
         byte[] printData = new byte[req.getContentLength()];
-        printDataInputStream.readFully(printData);
+        is.read(printData);
 
         logger.info("POST /print call from IP: " + req.getRemoteAddr() +
-                "\n header printType = " + printType +
-                "\n header printerAddress = " + printerName +
-                "\n content length:\n" + printData.length +
+                "\nheader printType = " + printType +
+                "\nheader printerAddress = " + printerName +
+                "\ncontent length = " + printData.length +
                 //add zpl data for zpl printmode
                 (printType.equalsIgnoreCase(String.valueOf(PrintMode.ZPLSOCKET))
-                        ? "ZPLDATA = " + new String(printData) : ""));
+                        ? "\nZPLDATA =\n" + new String(printData).replace('\n', ' ') : ""));
 
         if (printData.length > 0) {
             try {

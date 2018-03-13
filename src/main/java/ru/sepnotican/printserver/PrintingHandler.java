@@ -30,11 +30,7 @@ public class PrintingHandler {
         return instance;
     }
 
-    public void printZPL(String address, byte[] data) throws WrongAddressFormatException, IOException {
-        printBySocket(address, data);
-    }
-
-    private void printBySocket(String address, byte[] data) throws WrongAddressFormatException, IOException {
+    public void printZPL(String address, byte[] data, String chatset) throws WrongAddressFormatException, IOException {
 
         String[] addressSplitted = address.split(":");
         if (addressSplitted.length != 2)
@@ -42,7 +38,8 @@ public class PrintingHandler {
 
         try (Socket socket = new Socket(addressSplitted[0], Integer.parseInt(addressSplitted[1]));
              BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(socket.getOutputStream())) {
-            bufferedOutputStream.write(data); //byte[] b = zplData.getBytes("windows-1251");
+            byte[] b = new String(data, "UTF-8").getBytes("windows-1251");
+            bufferedOutputStream.write(b);
             bufferedOutputStream.flush();
         }
 
