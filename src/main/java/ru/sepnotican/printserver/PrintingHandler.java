@@ -5,13 +5,12 @@ import com.google.gson.Gson;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.printing.PDFPageable;
 
-import javax.print.DocFlavor;
-import javax.print.PrintService;
-import javax.print.PrintServiceLookup;
+import javax.print.*;
 import javax.print.attribute.HashAttributeSet;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
@@ -52,7 +51,7 @@ public class PrintingHandler {
         return PrinterList.printerMap.get(name);
     }
 
-    public void printPDF(String printerName, byte[] printData) throws IOException, PrinterException {
+    public void printPDF__(String printerName, byte[] printData) throws IOException, PrinterException {
 
         PDDocument pdDocument = PDDocument.load(printData);
 
@@ -63,6 +62,19 @@ public class PrintingHandler {
         pjob.setPageable(new PDFPageable(pdDocument));
 
         pjob.print();
+        pdDocument.close();
+
+    }
+
+
+    public void printPDF(String printerName, byte[] printData) throws PrintException {
+
+        DocFlavor docType = DocFlavor.INPUT_STREAM.PDF;
+
+        PrintService printService = getPrinterServiceByName(printerName);
+        DocPrintJob docPrintJob = printService.createPrintJob();
+        Doc toBePrinted = new SimpleDoc(new ByteArrayInputStream(printData), docType, null);
+        docPrintJob.print(toBePrinted, null);
 
     }
 
@@ -75,7 +87,7 @@ public class PrintingHandler {
 
         private static Map<String, PrintService> printerMap = new HashMap<>();
 
-        private static DocFlavor flavor = DocFlavor.INPUT_STREAM.AUTOSENSE;
+        private static DocFlavor flavor = DocFlavor.INPUT_STREAM.PDF;
         private static HashAttributeSet attribs = new HashAttributeSet();
 
         static {

@@ -6,3 +6,4 @@
 *.iml
 
 *.pdf
+/src/main/java/Check.java
