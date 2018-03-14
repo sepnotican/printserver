@@ -5,6 +5,7 @@ import org.apache.log4j.Logger;
 import ru.sepnotican.printserver.PrintMode;
 import ru.sepnotican.printserver.PrintingHandler;
 import ru.sepnotican.printserver.WrongAddressFormatException;
+import ru.sepnotican.printserver.WrongPrinterNameException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -67,6 +68,11 @@ public class PrintServlet extends HttpServlet {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 resp.getWriter().print(new ResponseMessage(resp.getStatus(), true, message).toJson());
             } catch (WrongAddressFormatException e) {
+                final String message = "Wrong address format. Address = " + printerName;
+                logger.error(message);
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                resp.getWriter().print(new ResponseMessage(resp.getStatus(), true, message).toJson());
+            } catch (WrongPrinterNameException e) {
                 final String message = "Wrong address format. Address = " + printerName;
                 logger.error(message);
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);

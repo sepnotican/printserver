@@ -67,11 +67,16 @@ public class PrintingHandler {
     }
 
 
-    public void printPDF(String printerName, byte[] printData) throws PrintException {
+    public void printPDF(String printerName, byte[] printData) throws PrintException, WrongPrinterNameException {
 
         DocFlavor docType = DocFlavor.INPUT_STREAM.PDF;
 
         PrintService printService = getPrinterServiceByName(printerName);
+
+        if (printService == null) {
+            throw new WrongPrinterNameException("That printer is not installed or not suppoted PDF format");
+        }
+
         DocPrintJob docPrintJob = printService.createPrintJob();
         Doc toBePrinted = new SimpleDoc(new ByteArrayInputStream(printData), docType, null);
         docPrintJob.print(toBePrinted, null);
