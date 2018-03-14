@@ -68,7 +68,7 @@ public class PrintingHandler {
 
     public void printPDF(String printerName, byte[] printData) throws PrintException, WrongPrinterNameException {
 
-        DocFlavor docType = DocFlavor.INPUT_STREAM.PDF;
+        DocFlavor docType = DocFlavor.BYTE_ARRAY.AUTOSENSE;
 
         PrintService printService = getPrinterServiceByName(printerName);
 
@@ -91,7 +91,7 @@ public class PrintingHandler {
 
         private static Map<String, PrintService> printerMap = new HashMap<>();
 
-        private static DocFlavor flavor = DocFlavor.INPUT_STREAM.PDF;
+        private static DocFlavor flavor = DocFlavor.BYTE_ARRAY.AUTOSENSE;
         private static HashAttributeSet attribs = new HashAttributeSet();
 
         static {
