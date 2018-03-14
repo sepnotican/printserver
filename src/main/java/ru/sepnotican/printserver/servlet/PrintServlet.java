@@ -37,7 +37,7 @@ public class PrintServlet extends HttpServlet {
             }
         }
 
-
+        resp.setContentType("text/plain");
         resp.getWriter().print(PrintingHandler.getInstance().getPrinterListInJson());
         resp.setStatus(HttpServletResponse.SC_OK);
     }
@@ -45,12 +45,17 @@ public class PrintServlet extends HttpServlet {
     @Override
     protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         logger.info("OPTIONS /print call from IP: " + req.getRemoteAddr());
+
+        resp.setContentType("application/json");
         resp.getWriter().print(PrintingHandler.getInstance().getPrinterListInJson());
         resp.setStatus(HttpServletResponse.SC_OK);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+
+        resp.setContentType("application/json");
+
         String printType = req.getHeader("printType");
         String printerName = req.getHeader("printerAddress");
         String charset = req.getCharacterEncoding();
