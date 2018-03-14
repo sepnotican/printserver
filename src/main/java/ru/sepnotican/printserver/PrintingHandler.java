@@ -10,7 +10,6 @@ import javax.print.attribute.HashAttributeSet;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
@@ -78,7 +77,7 @@ public class PrintingHandler {
         }
 
         DocPrintJob docPrintJob = printService.createPrintJob();
-        Doc toBePrinted = new SimpleDoc(new ByteArrayInputStream(printData), docType, null);
+        Doc toBePrinted = new SimpleDoc(printData, docType, null);
         docPrintJob.print(toBePrinted, null);
 
     }

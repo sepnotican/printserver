@@ -7,6 +7,9 @@ import ru.sepnotican.printserver.PrintingHandler;
 import ru.sepnotican.printserver.WrongAddressFormatException;
 import ru.sepnotican.printserver.WrongPrinterNameException;
 
+import javax.print.DocFlavor;
+import javax.print.PrintService;
+import javax.print.PrintServiceLookup;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -22,6 +25,21 @@ public class PrintServlet extends HttpServlet {
 
     public PrintServlet() {
         this.printingHandler = PrintingHandler.getInstance(); //todo inject
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+        for (PrintService printService : PrintServiceLookup.lookupPrintServices(DocFlavor.INPUT_STREAM.AUTOSENSE, null)) {
+            resp.getWriter().println(" service : " + printService.getName() + '\n');
+            for (DocFlavor flavor : printService.getSupportedDocFlavors()) {
+                resp.getWriter().println(" flavour : " + flavor.toString() + '\n');
+            }
+        }
+
+
+        resp.getWriter().print(PrintingHandler.getInstance().getPrinterListInJson());
+        resp.setStatus(HttpServletResponse.SC_OK);
     }
 
     @Override
@@ -73,7 +91,7 @@ public class PrintServlet extends HttpServlet {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 resp.getWriter().print(new ResponseMessage(resp.getStatus(), true, message).toJson());
             } catch (WrongPrinterNameException e) {
-                final String message = "Wrong address format. Address = " + printerName;
+                final String message = "Wrong printer name. Name = " + printerName;
                 logger.error(message);
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 resp.getWriter().print(new ResponseMessage(resp.getStatus(), true, message).toJson());
