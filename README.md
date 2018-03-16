@@ -1,5 +1,5 @@
 # project: printserver
-# author: Muradov MA, 2018
+author: Muradov MA, 2018
 
 Simple printserver for pdf and ZPL printing via http requests
 
