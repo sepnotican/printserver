@@ -1,14 +1,11 @@
 package ru.sepnotican.printserver;
 
-
 import com.google.gson.Gson;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.printing.PDFPageable;
 
 import javax.print.*;
-import javax.print.attribute.HashAttributeSet;
-import java.awt.print.PrinterException;
-import java.awt.print.PrinterJob;
+import javax.print.attribute.*;
+import javax.print.attribute.standard.MediaSizeName;
+import javax.print.attribute.standard.OrientationRequested;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -50,25 +47,10 @@ public class PrintingHandler {
         return PrinterList.printerMap.get(name);
     }
 
-    public void printPDF__(String printerName, byte[] printData) throws IOException, PrinterException {
-
-        PDDocument pdDocument = PDDocument.load(printData);
-
-        PrinterJob pjob = PrinterJob.getPrinterJob();
-
-        pjob.setPrintService(getPrinterServiceByName(printerName));
-
-        pjob.setPageable(new PDFPageable(pdDocument));
-
-        pjob.print();
-        pdDocument.close();
-
-    }
-
 
     public void printPDF(String printerName, byte[] printData) throws PrintException, WrongPrinterNameException {
 
-        DocFlavor docType = DocFlavor.BYTE_ARRAY.AUTOSENSE;
+        DocFlavor docType = DocFlavor.BYTE_ARRAY.PDF;
 
         PrintService printService = getPrinterServiceByName(printerName);
 
@@ -76,9 +58,17 @@ public class PrintingHandler {
             throw new WrongPrinterNameException("That printer is not installed or not suppoted PDF format");
         }
 
+        DocAttributeSet attribute = new HashDocAttributeSet();
+        attribute.add(OrientationRequested.LANDSCAPE);
+        attribute.add(MediaSizeName.ISO_A4);
+
         DocPrintJob docPrintJob = printService.createPrintJob();
-        Doc toBePrinted = new SimpleDoc(printData, docType, null);
-        docPrintJob.print(toBePrinted, null);
+        Doc toBePrinted = new SimpleDoc(printData, docType, attribute);
+
+        PrintRequestAttributeSet atr = new HashPrintRequestAttributeSet();
+        atr.addAll(attribute);
+
+        docPrintJob.print(toBePrinted, atr);
 
     }
 
@@ -91,7 +81,7 @@ public class PrintingHandler {
 
         private static Map<String, PrintService> printerMap = new HashMap<>();
 
-        private static DocFlavor flavor = DocFlavor.BYTE_ARRAY.AUTOSENSE;
+        private static DocFlavor flavor = DocFlavor.BYTE_ARRAY.PDF;
         private static HashAttributeSet attribs = new HashAttributeSet();
 
         static {

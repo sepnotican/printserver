@@ -2,6 +2,8 @@ package ru.sepnotican.printserver.servlet;
 
 import com.google.gson.Gson;
 import org.apache.log4j.Logger;
+import org.springframework.util.MimeTypeUtils;
+import org.springframework.web.bind.annotation.*;
 import ru.sepnotican.printserver.PrintMode;
 import ru.sepnotican.printserver.PrintingHandler;
 import ru.sepnotican.printserver.WrongAddressFormatException;
@@ -14,10 +16,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Base64;
 
+
+@RestController
 public class PrintServlet extends HttpServlet {
 
     PrintingHandler printingHandler;
@@ -27,7 +31,7 @@ public class PrintServlet extends HttpServlet {
         this.printingHandler = PrintingHandler.getInstance(); //todo inject
     }
 
-    @Override
+    @GetMapping("/")
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
         for (PrintService printService : PrintServiceLookup.lookupPrintServices(DocFlavor.INPUT_STREAM.AUTOSENSE, null)) {
@@ -42,7 +46,7 @@ public class PrintServlet extends HttpServlet {
         resp.setStatus(HttpServletResponse.SC_OK);
     }
 
-    @Override
+    @RequestMapping(path = "/print", method = RequestMethod.OPTIONS, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         logger.info("OPTIONS /print call from IP: " + req.getRemoteAddr());
 
@@ -51,18 +55,21 @@ public class PrintServlet extends HttpServlet {
         resp.setStatus(HttpServletResponse.SC_OK);
     }
 
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    @RequestMapping(path = "/print", method = RequestMethod.POST, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
+    protected void doPost(@RequestBody byte[] printDataInc,
+                          HttpServletResponse resp,
+                          HttpServletRequest req,
+                          @RequestHeader String printType,
+                          @RequestHeader("printerAddress") String printerName) throws IOException {
 
         resp.setContentType("application/json");
-
-        String printType = req.getHeader("printType");
-        String printerName = req.getHeader("printerAddress");
         String charset = req.getCharacterEncoding();
 
-        BufferedInputStream bis = new BufferedInputStream(req.getInputStream());
-        byte[] printData = new byte[req.getContentLength()];
-        bis.read(printData, 0, req.getContentLength());
+//        BufferedInputStream bis = new BufferedInputStream(req.getInputStream());
+//        byte[] printData = new byte[req.getContentLength()];
+//        bis.read(printData, 0, req.getContentLength());
+
+        byte[] printData = Base64.getDecoder().decode(printDataInc);
 
         logger.info("POST /print call from IP: " + req.getRemoteAddr() +
                 "\nheader printType = " + printType +
