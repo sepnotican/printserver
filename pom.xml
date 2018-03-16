@@ -5,7 +5,7 @@
 
 	<groupId>ru.sepnotican</groupId>
 	<artifactId>printserver</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.1.0-jetty-release</version>
 	<packaging>jar</packaging>
 
 	<name>printserver</name>
@@ -30,13 +30,6 @@
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-webapp</artifactId>
 			<version>${jetty-webapp.version}</version>
-		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/org.apache.pdfbox/pdfbox -->
-		<dependency>
-			<groupId>org.apache.pdfbox</groupId>
-			<artifactId>pdfbox</artifactId>
-			<version>2.0.8</version>
 		</dependency>
 
 

@@ -2,18 +2,13 @@ package ru.sepnotican.printserver;
 
 
 import com.google.gson.Gson;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.printing.PDFPageable;
 
 import javax.print.*;
 import javax.print.attribute.*;
 import javax.print.attribute.standard.MediaSizeName;
 import javax.print.attribute.standard.OrientationRequested;
-import java.awt.print.PrinterException;
-import java.awt.print.PrinterJob;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,7 +26,7 @@ public class PrintingHandler {
         return instance;
     }
 
-    public void printZPL(String address, byte[] data, String charset) throws WrongAddressFormatException, UnsupportedEncodingException, IOException {
+    public void printZPL(String address, byte[] data, String charset) throws WrongAddressFormatException, IOException {
 
         String[] addressSplitted = address.split(":");
         if (addressSplitted.length != 2)
@@ -51,22 +46,6 @@ public class PrintingHandler {
     public static PrintService getPrinterServiceByName(String name) {
         return PrinterList.printerMap.get(name);
     }
-
-    public void printPDF__(String printerName, byte[] printData) throws IOException, PrinterException {
-
-        PDDocument pdDocument = PDDocument.load(printData);
-
-        PrinterJob pjob = PrinterJob.getPrinterJob();
-
-        pjob.setPrintService(getPrinterServiceByName(printerName));
-
-        pjob.setPageable(new PDFPageable(pdDocument));
-
-        pjob.print();
-        pdDocument.close();
-
-    }
-
 
     public void printPDF(String printerName, byte[] printData) throws PrintException, WrongPrinterNameException {
 
