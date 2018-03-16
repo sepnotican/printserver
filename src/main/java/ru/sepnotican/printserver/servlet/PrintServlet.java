@@ -11,12 +11,15 @@ import javax.print.DocFlavor;
 import javax.print.PrintService;
 import javax.print.PrintServiceLookup;
 import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class PrintServlet extends HttpServlet {
 
@@ -51,6 +54,25 @@ public class PrintServlet extends HttpServlet {
         resp.setStatus(HttpServletResponse.SC_OK);
     }
 
+
+    static byte[] asaved = null;
+
+    public static String getMD5(byte[] input) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] messageDigest = md.digest(input);
+            BigInteger number = new BigInteger(1, messageDigest);
+            String hashtext = number.toString(16);
+            // Now we need to zero pad it if you actually want the full 32 chars.
+            while (hashtext.length() < 32) {
+                hashtext = "0" + hashtext;
+            }
+            return hashtext;
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
@@ -60,9 +82,21 @@ public class PrintServlet extends HttpServlet {
         String printerName = req.getHeader("printerAddress");
         String charset = req.getCharacterEncoding();
 
-        BufferedInputStream bis = new BufferedInputStream(req.getInputStream());
+        ServletInputStream inputStream = req.getInputStream();
         byte[] printData = new byte[req.getContentLength()];
-        bis.read(printData, 0, req.getContentLength());
+
+
+        byte b;
+        int j = 0;
+        while (!inputStream.isFinished()
+                && j < req.getContentLength()) {
+            if (!inputStream.isReady()) continue;
+            b = (byte) inputStream.read();
+            printData[j++] = b;
+        }
+
+        if (j < req.getContentLength())
+            throw new RuntimeException("LENTH WRONG!!! got = " + j + " await = " + req.getContentLength());
 
         logger.info("POST /print call from IP: " + req.getRemoteAddr() +
                 "\nheader printType = " + printType +

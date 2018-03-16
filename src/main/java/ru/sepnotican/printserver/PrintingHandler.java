@@ -6,7 +6,9 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.printing.PDFPageable;
 
 import javax.print.*;
-import javax.print.attribute.HashAttributeSet;
+import javax.print.attribute.*;
+import javax.print.attribute.standard.MediaSizeName;
+import javax.print.attribute.standard.OrientationRequested;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.io.BufferedOutputStream;
@@ -68,7 +70,7 @@ public class PrintingHandler {
 
     public void printPDF(String printerName, byte[] printData) throws PrintException, WrongPrinterNameException {
 
-        DocFlavor docType = DocFlavor.BYTE_ARRAY.AUTOSENSE;
+        DocFlavor docType = DocFlavor.BYTE_ARRAY.PDF;
 
         PrintService printService = getPrinterServiceByName(printerName);
 
@@ -76,10 +78,17 @@ public class PrintingHandler {
             throw new WrongPrinterNameException("That printer is not installed or not suppoted PDF format");
         }
 
-        DocPrintJob docPrintJob = printService.createPrintJob();
-        Doc toBePrinted = new SimpleDoc(printData, docType, null);
-        docPrintJob.print(toBePrinted, null);
+        DocAttributeSet attribute = new HashDocAttributeSet();
+        attribute.add(OrientationRequested.LANDSCAPE);
+        attribute.add(MediaSizeName.ISO_A4);
 
+        DocPrintJob docPrintJob = printService.createPrintJob();
+        Doc toBePrinted = new SimpleDoc(printData, docType, attribute);
+
+        PrintRequestAttributeSet atr = new HashPrintRequestAttributeSet();
+        atr.addAll(attribute);
+
+        docPrintJob.print(toBePrinted, atr);
     }
 
     public String getPrinterListInJson() {
@@ -91,7 +100,7 @@ public class PrintingHandler {
 
         private static Map<String, PrintService> printerMap = new HashMap<>();
 
-        private static DocFlavor flavor = DocFlavor.BYTE_ARRAY.AUTOSENSE;
+        private static DocFlavor flavor = DocFlavor.BYTE_ARRAY.PDF;
         private static HashAttributeSet attribs = new HashAttributeSet();
 
         static {
