@@ -5,9 +5,10 @@ import org.apache.log4j.Logger;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 public class MyServletRoot extends HttpServlet {
 
@@ -18,9 +19,16 @@ public class MyServletRoot extends HttpServlet {
 
         logger.info("GET / call from IP: " + req.getRemoteAddr());
 
-        String content;
+        String content = "";
         try {
-            content = new String(Files.readAllBytes(Paths.get("static/index.html")));
+            InputStream is = (InputStream) getClass().getClassLoader()
+                    .getResourceAsStream("static/index.html");
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+
+
+            while (br.ready())
+                content += br.readLine();
+
         } catch (Exception e) {
             logger.error("Unable to find load index.html. Error: " + e.getMessage());
             throw new RuntimeException("Unable to find load index.html");
