@@ -13,7 +13,6 @@ import javax.print.DocFlavor;
 import javax.print.PrintService;
 import javax.print.PrintServiceLookup;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -22,7 +21,7 @@ import java.util.Base64;
 
 
 @RestController
-public class PrintServlet extends HttpServlet {
+public class PrintServlet {
 
     PrintingHandler printingHandler;
     private static final Logger logger = Logger.getLogger(PrintServlet.class);
@@ -31,7 +30,7 @@ public class PrintServlet extends HttpServlet {
         this.printingHandler = PrintingHandler.getInstance(); //todo inject
     }
 
-    @GetMapping("/")
+    @GetMapping("/print")
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
         for (PrintService printService : PrintServiceLookup.lookupPrintServices(DocFlavor.INPUT_STREAM.AUTOSENSE, null)) {
