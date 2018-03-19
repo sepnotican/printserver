@@ -10,7 +10,6 @@ import ru.sepnotican.printserver.WrongPrinterNameException;
 import javax.print.DocFlavor;
 import javax.print.PrintService;
 import javax.print.PrintServiceLookup;
-import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -31,7 +30,7 @@ public class PrintServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
         for (PrintService printService : PrintServiceLookup.lookupPrintServices(DocFlavor.INPUT_STREAM.AUTOSENSE, null)) {
             resp.getWriter().println(" service : " + printService.getName() + '\n');
@@ -46,7 +45,7 @@ public class PrintServlet extends HttpServlet {
     }
 
     @Override
-    protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         logger.info("OPTIONS /print call from IP: " + req.getRemoteAddr());
 
         resp.setContentType("application/json");
@@ -109,6 +108,7 @@ public class PrintServlet extends HttpServlet {
         if (printData.length > 0) {
             try {
                 if (printType.equalsIgnoreCase(String.valueOf(PrintMode.ZPLSOCKET))) {
+                    if (charset == null) throw new RuntimeException("Charset must be defined for ZPL printing");
                     printingHandler.printZPL(printerName, printData, charset);
                 } else if (printType.equalsIgnoreCase(String.valueOf(PrintMode.PDFLOCAL))) {
                     printingHandler.printPDF(printerName, printData);
