@@ -26,6 +26,10 @@ public class PrintServlet extends HttpServlet {
         this.printingHandler = PrintingHandler.getInstance(); //todo inject
     }
 
+    public void setPrintingHandler(PrintingHandler printingHandler) {
+        this.printingHandler = printingHandler;
+    }
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
