@@ -2,10 +2,7 @@ package ru.sepnotican.printserver.servlet;
 
 import com.google.gson.Gson;
 import org.apache.log4j.Logger;
-import ru.sepnotican.printserver.PrintMode;
-import ru.sepnotican.printserver.PrintingHandler;
-import ru.sepnotican.printserver.WrongAddressFormatException;
-import ru.sepnotican.printserver.WrongPrinterNameException;
+import ru.sepnotican.printserver.*;
 
 import javax.print.DocFlavor;
 import javax.print.PrintService;
@@ -19,15 +16,11 @@ import java.io.UnsupportedEncodingException;
 
 public class PrintServlet extends HttpServlet {
 
-    PrintingHandler printingHandler;
+    private static PrintingHandler printingHandler = PrintingHandler.getInstance();
     private static final Logger logger = Logger.getLogger(PrintServlet.class);
 
-    public PrintServlet() {
-        this.printingHandler = PrintingHandler.getInstance(); //todo inject
-    }
-
-    public void setPrintingHandler(PrintingHandler printingHandler) {
-        this.printingHandler = printingHandler;
+    public static void setPrintingHandler(PrintingHandler handler) {
+        printingHandler = handler;
     }
 
     @Override
@@ -41,7 +34,7 @@ public class PrintServlet extends HttpServlet {
         }
 
         resp.setContentType("text/plain");
-        resp.getWriter().print(PrintingHandler.getInstance().getPrinterListInJson());
+        resp.getWriter().print(printingHandler.getPrinterListInJson());
         resp.setStatus(HttpServletResponse.SC_OK);
     }
 
@@ -66,7 +59,6 @@ public class PrintServlet extends HttpServlet {
         ServletInputStream inputStream = req.getInputStream();
         byte[] printData = new byte[req.getContentLength()];
 
-
         byte b;
         int j = 0;
         while (!inputStream.isFinished()
@@ -76,8 +68,9 @@ public class PrintServlet extends HttpServlet {
             printData[j++] = b;
         }
 
-        if (j < req.getContentLength())
-            throw new RuntimeException("LENTH WRONG!!! got = " + j + " await = " + req.getContentLength());
+        if (j < req.getContentLength()) {
+            prepareBadRequestResponce(resp, "LENGTH WRONG!!! got = " + j + " await = " + req.getContentLength());
+        }
 
         logger.info("POST /print call from IP: " + req.getRemoteAddr() +
                 "\nheader printType = " + printType +
@@ -87,48 +80,46 @@ public class PrintServlet extends HttpServlet {
                 (printType.equalsIgnoreCase(String.valueOf(PrintMode.ZPLSOCKET))
                         ? "\nZPLDATA =\n" + new String(printData).replace('\n', ' ') : ""));
 
-        if (printData.length > 0) {
-            try {
-                if (printType.equalsIgnoreCase(String.valueOf(PrintMode.ZPLSOCKET))) {
-                    if (charset == null) throw new RuntimeException("Charset must be defined for ZPL printing");
-                    printingHandler.printZPL(printerName, printData, charset);
-                } else if (printType.equalsIgnoreCase(String.valueOf(PrintMode.PDFLOCAL))) {
-                    printingHandler.printPDF(printerName, printData);
-                } else {
-                    final String message = "Wrong print type header's value. Got: " + printType;
-                    logger.warn(message);
-                    resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                    resp.getWriter().print(new ResponseMessage(resp.getStatus(), true, message).toJson());
-                }
-
-            } catch (UnsupportedEncodingException e) {
-                final String message = "Wrong encoding. Got = " + charset;
-                logger.error(message);
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                resp.getWriter().print(new ResponseMessage(resp.getStatus(), true, message).toJson());
-            } catch (WrongAddressFormatException e) {
-                final String message = "Wrong address format. Address = " + printerName;
-                logger.error(message);
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                resp.getWriter().print(new ResponseMessage(resp.getStatus(), true, message).toJson());
-            } catch (WrongPrinterNameException e) {
-                final String message = "Wrong printer name. Name = " + printerName;
-                logger.error(message);
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                resp.getWriter().print(new ResponseMessage(resp.getStatus(), true, message).toJson());
-            } catch (Exception e) {
-                e.printStackTrace();
-                logger.error("Internal error. Message = " + e.getMessage());
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                resp.getWriter().print(new ResponseMessage(resp.getStatus(), true, e.getMessage()).toJson());
-            }
-        } else {
+        if (printData.length == 0) {
             final String message = "Request body is null length. Nothing to print.";
             logger.warn(message);
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().print(new ResponseMessage(resp.getStatus(), true, message).toJson());
+            return;
+        }
+        try {
+            if (printType.equalsIgnoreCase(String.valueOf(PrintMode.ZPLSOCKET))) {
+                if (charset == null) throw new UnsupportedEncodingException("Charset must be defined for ZPL printing");
+                printingHandler.printZPL(printerName, printData, charset);
+            } else if (printType.equalsIgnoreCase(String.valueOf(PrintMode.PDFLOCAL))) {
+                printingHandler.printPDF(printerName, printData);
+            } else {
+                throw new WrongPrinterTypeException("Wrong print type header's value. Got: " + printType);
+            }
+            resp.setStatus(HttpServletResponse.SC_OK);
+            resp.getWriter().print(new ResponseMessage(resp.getStatus(), false, "OK").toJson());
+
+        } catch (UnsupportedEncodingException | WrongAddressFormatException
+                | WrongPrinterNameException | WrongPrinterTypeException e) {
+            prepareBadRequestResponce(resp, e);
+        } catch (Exception e) {
+            logger.error("Internal error. Message = " + e.getMessage());
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().print(new ResponseMessage(resp.getStatus(), true, e.getMessage()).toJson());
         }
 
+
+    }
+
+    private void prepareBadRequestResponce(HttpServletResponse resp, Exception e) throws IOException {
+        final String message = e.getClass().getName() + ':' + e.getMessage();
+        prepareBadRequestResponce(resp, message);
+    }
+
+    private void prepareBadRequestResponce(HttpServletResponse resp, String message) throws IOException {
+        logger.warn(message);
+        resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        resp.getWriter().print(new ResponseMessage(resp.getStatus(), true, message).toJson());
     }
 
     private static class ResponseMessage {

@@ -19,22 +19,22 @@ public class MyServletRoot extends HttpServlet {
 
         logger.info("GET / call from IP: " + req.getRemoteAddr());
 
-        String content = "";
+        StringBuilder content = new StringBuilder();
         try {
-            InputStream is = (InputStream) getClass().getClassLoader()
+            InputStream is = getClass().getClassLoader()
                     .getResourceAsStream("static/index.html");
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
 
 
             while (br.ready())
-                content += br.readLine();
+                content.append(br.readLine());
 
         } catch (Exception e) {
-            logger.error("Unable to find load index.html. Error: " + e.getMessage());
-            throw new RuntimeException("Unable to find load index.html");
+            logger.error("Unable to load index.html. Error: " + e.getMessage());
+            throw e;
         }
 
-        resp.getWriter().println(content);
+        resp.getWriter().println(content.toString());
         resp.setStatus(HttpServletResponse.SC_OK);
     }
 }

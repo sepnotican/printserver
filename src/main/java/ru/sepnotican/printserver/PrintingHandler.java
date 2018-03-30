@@ -17,7 +17,7 @@ import java.util.Set;
 
 public class PrintingHandler {
 
-    private final static PrintingHandler instance = new PrintingHandler();
+    private static final PrintingHandler instance = new PrintingHandler();
 
     private PrintingHandler() {
     }
@@ -30,15 +30,13 @@ public class PrintingHandler {
 
         String[] addressSplitted = address.split(":");
         if (addressSplitted.length != 2)
-            throw new WrongAddressFormatException("Wrong address format!");
+            throw new WrongAddressFormatException("Wrong address format! Address = " + address);
 
         try (Socket socket = new Socket(addressSplitted[0], Integer.parseInt(addressSplitted[1]));
              BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(socket.getOutputStream())) {
             byte[] b = new String(data, "UTF-8").getBytes(charset);
             bufferedOutputStream.write(b);
             bufferedOutputStream.flush();
-        } catch (Exception e) {
-            throw e;
         }
 
     }
@@ -54,7 +52,7 @@ public class PrintingHandler {
         PrintService printService = getPrinterServiceByName(printerName);
 
         if (printService == null) {
-            throw new WrongPrinterNameException("That printer is not installed or not suppoted PDF format");
+            throw new WrongPrinterNameException("That printer is not installed or not suppoted PDF format. Name = " + printerName);
         }
 
         DocAttributeSet attribute = new HashDocAttributeSet();

@@ -95,7 +95,7 @@ public class PrintServletTest {
         in.close();
 
         Assert.assertEquals(200, con.getResponseCode());
-        Assert.assertEquals("", response.toString());
+        Assert.assertEquals("{\"code\":200,\"hasErrors\":false,\"message\":\"OK\"}", response.toString());
 
     }
 
