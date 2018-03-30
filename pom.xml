@@ -5,7 +5,7 @@
 
 	<groupId>ru.sepnotican</groupId>
 	<artifactId>printserver</artifactId>
-	<version>0.1.1-jetty-SNAPSHOT</version>
+	<version>0.1.2-jetty-release</version>
 	<packaging>jar</packaging>
 
 	<name>printserver</name>
