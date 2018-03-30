@@ -19,6 +19,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.HashSet;
 
 public class PrintServletTest {
@@ -58,8 +59,7 @@ public class PrintServletTest {
         BufferedReader in = new BufferedReader(
                 new InputStreamReader(con.getInputStream()));
         String inputLine;
-        StringBuffer response = new StringBuffer();
-
+        StringBuilder response = new StringBuilder();
         while ((inputLine = in.readLine()) != null) {
             response.append(inputLine);
         }
@@ -86,16 +86,20 @@ public class PrintServletTest {
 
         BufferedReader in = new BufferedReader(
                 new InputStreamReader(con.getInputStream()));
-        String inputLine;
-        StringBuffer response = new StringBuffer();
 
+        String inputLine;
+        StringBuilder response = new StringBuilder();
         while ((inputLine = in.readLine()) != null) {
             response.append(inputLine);
         }
         in.close();
 
         Assert.assertEquals(200, con.getResponseCode());
-        Assert.assertEquals("{\"code\":200,\"hasErrors\":false,\"message\":\"OK\"}", response.toString());
+        HashMap map = gson.fromJson(response.toString(), HashMap.class);
+
+        Assert.assertEquals(200d, map.get("code"));
+        Assert.assertEquals(false, map.get("hasErrors"));
+        Assert.assertEquals("OK", map.get("message"));
 
     }
 
